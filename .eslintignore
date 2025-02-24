@@ -1,0 +1,14 @@
+node_modules/
+
+ios/
+android/
+
+assets/
+
+.vscode/
+
+.expo-shared/
+.expo/
+
+package-lock.json
+package.json
