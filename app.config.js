@@ -75,6 +75,9 @@ module.exports = {
         foregroundImage: "./assets/images/icon.png",
         backgroundColor: "#ffffff",
       },
+      androidStatusBar: {
+        translucent: false,
+      },
     },
     web: {
       bundler: "metro",

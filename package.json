@@ -5,6 +5,9 @@
   "scripts": {
     "start": "expo start",
     "prebuild": "expo prebuild",
+    "prebuild:android": "expo prebuild --platform android",
+    "prebuild:ios": "expo prebuild --platform ios",
+    "prebuild-clean": "expo prebuild --clean",
     "dev": "APP_VARIANT=development expo start",
     "staging": "APP_VARIANT=staging expo start",
     "prod": "APP_VARIANT=production expo start",
