@@ -2,11 +2,6 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useReactQueryDevTools } from "@dev-plugins/react-query";
-// import {
-//   DarkTheme,
-//   DefaultTheme,
-//   ThemeProvider,
-// } from "@react-navigation/native";
 import { useColorScheme } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import {
@@ -21,25 +16,17 @@ export default function RootLayout() {
   useReactQueryDevTools(queryClient);
 
   const colorScheme = useColorScheme();
-
   const paperTheme = colorScheme === "dark" ? MD3DarkTheme : MD3LightTheme;
 
   return (
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
         <PaperProvider theme={paperTheme}>
-          {/* <ThemeProvider
-            value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-          > */}
           <Stack>
+            <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="+not-found"
-              options={{ title: "Oops! Not Found" }}
-            />
+            <Stack.Screen name="+not-found" options={{ headerShown: false }} />
           </Stack>
-          <StatusBar style="light" />
-          {/* </ThemeProvider> */}
         </PaperProvider>
       </QueryClientProvider>
     </SafeAreaProvider>
