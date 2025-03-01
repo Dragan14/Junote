@@ -1,4 +1,5 @@
 import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useReactQueryDevTools } from "@dev-plugins/react-query";
 import "../tamagui-web.css";
@@ -42,7 +43,14 @@ export default function RootLayout() {
         <ThemeProvider
           value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
         >
-          <Stack />
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="+not-found"
+              options={{ title: "Oops! Not Found" }}
+            />
+          </Stack>
+          <StatusBar style="light" />
         </ThemeProvider>
       </TamaguiProvider>
     </QueryClientProvider>
