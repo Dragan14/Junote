@@ -38,9 +38,6 @@ yarn-error.*
 # example app
 app-example
 
-# tamagui
-.tamagui
-
 # native directories
 ios
 android

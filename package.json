@@ -5,23 +5,18 @@
   "scripts": {
     "start": "expo start",
     "prebuild": "expo prebuild",
-    
     "dev": "APP_VARIANT=development expo start",
     "staging": "APP_VARIANT=staging expo start",
     "prod": "APP_VARIANT=production expo start",
-    
     "android:dev": "APP_VARIANT=development expo run:android",
     "android:staging": "APP_VARIANT=staging expo run:android",
     "android:prod": "APP_VARIANT=production expo run:android",
-    
     "ios:dev": "APP_VARIANT=development expo run:ios",
     "ios:staging": "APP_VARIANT=staging expo run:ios",
     "ios:prod": "APP_VARIANT=production expo run:ios",
-    
     "clean:ios": "rm -rf ios",
     "clean:android": "rm -rf android",
     "clean": "npm run clean:ios && npm run clean:android",
-    
     "reset-project": "node ./scripts/reset-project.js",
     "test": "jest --watchAll",
     "lint": "expo lint"
@@ -34,13 +29,11 @@
     "@expo/vector-icons": "^14.0.2",
     "@react-navigation/bottom-tabs": "^7.2.0",
     "@react-navigation/native": "^7.0.14",
-    "@tamagui/babel-plugin": "^1.125.14",
-    "@tamagui/config": "^1.125.14",
-    "@tamagui/metro-plugin": "^1.125.14",
     "axios": "^1.7.9",
     "expo": "~52.0.37",
     "expo-blur": "~14.0.3",
     "expo-constants": "~17.0.7",
+    "expo-dev-client": "~5.0.12",
     "expo-font": "~13.0.4",
     "expo-haptics": "~14.0.1",
     "expo-linking": "~7.0.5",
@@ -60,10 +53,8 @@
     "react-native-screens": "~4.4.0",
     "react-native-web": "~0.19.13",
     "react-native-webview": "13.12.5",
-    "tamagui": "^1.125.14",
     "zod": "^3.24.2",
-    "zustand": "^5.0.3",
-    "expo-dev-client": "~5.0.12"
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
