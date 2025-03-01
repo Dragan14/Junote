@@ -30,7 +30,6 @@ const getVariant = () => {
   const variantName = process.env.APP_VARIANT || "production";
   const selectedVariant = VARIANTS[variantName] || VARIANTS.production;
 
-  // Log extensive information about the build
   console.log(`
     === BUILDING APP VARIANT ===
     Variant: ${variantName}
@@ -80,17 +79,20 @@ module.exports = {
     web: {
       bundler: "metro",
       output: "static",
-      favicon: "./assets/images/favicon.png",
+      favicon: "./assets/images/icon.png",
     },
     plugins: [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          image: "./assets/images/splash-icon.png",
+          image: "./assets/images/icon.png",
+          backgroundColor: "#ffffff",
+          dark: {
+            backgroundColor: "#232323",
+          },
           imageWidth: 200,
           resizeMode: "contain",
-          backgroundColor: "#ffffff",
         },
       ],
       "expo-font",

@@ -4,19 +4,25 @@
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
-    "start:dev": "APP_VARIANT=development expo start",
-    "start:staging": "APP_VARIANT=staging expo start",
-    "start:prod": "APP_VARIANT=production expo start",
-    "android": "expo run:android",
+    "prebuild": "expo prebuild",
+    
+    "dev": "APP_VARIANT=development expo start",
+    "staging": "APP_VARIANT=staging expo start",
+    "prod": "APP_VARIANT=production expo start",
+    
     "android:dev": "APP_VARIANT=development expo run:android",
     "android:staging": "APP_VARIANT=staging expo run:android",
     "android:prod": "APP_VARIANT=production expo run:android",
-    "ios": "expo run:ios",
+    
     "ios:dev": "APP_VARIANT=development expo run:ios",
     "ios:staging": "APP_VARIANT=staging expo run:ios",
     "ios:prod": "APP_VARIANT=production expo run:ios",
+    
+    "clean:ios": "rm -rf ios",
+    "clean:android": "rm -rf android",
+    "clean": "npm run clean:ios && npm run clean:android",
+    
     "reset-project": "node ./scripts/reset-project.js",
-    "web": "expo start --web",
     "test": "jest --watchAll",
     "lint": "expo lint"
   },
