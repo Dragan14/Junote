@@ -11,6 +11,7 @@ import Auth from "../components/Authentication";
 import { useAuthStore } from "../stores/useAuthStore";
 import { AppState } from "react-native";
 import { supabase } from "../lib/supabase";
+import { useShallow } from "zustand/react/shallow";
 
 const queryClient = new QueryClient({});
 
@@ -21,15 +22,19 @@ export default function RootLayout() {
   const paperTheme =
     colorScheme === "dark" ? junoteDarkTheme : junoteLightTheme;
 
-  const session = useAuthStore((state) => state.session);
-  const getSession = useAuthStore.getState().getSession;
+  const { session, setSession } = useAuthStore(
+    useShallow((state) => ({
+      session: state.session,
+      setSession: state.setSession,
+    })),
+  );
 
   useEffect(() => {
     // Listen for session changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(() => {
-      getSession();
+      setSession();
     });
 
     // Handle app state changes for auto-refresh
@@ -49,7 +54,7 @@ export default function RootLayout() {
       subscription.unsubscribe();
       appStateSubscription.remove();
     };
-  }, [getSession]);
+  }, [setSession]);
 
   return (
     <SafeAreaProvider>

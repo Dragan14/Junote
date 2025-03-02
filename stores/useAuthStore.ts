@@ -10,8 +10,8 @@ type AuthState = {
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
-  getSession: () => Promise<void>;
-  getUser: () => Promise<void>;
+  setSession: () => Promise<void>;
+  setUser: () => Promise<void>;
 };
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -79,7 +79,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  getSession: async () => {
+  setSession: async () => {
     try {
       set({ isLoading: true });
 
@@ -95,7 +95,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  getUser: async () => {
+  setUser: async () => {
     try {
       set({ isLoading: true });
 

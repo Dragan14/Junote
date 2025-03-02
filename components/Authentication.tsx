@@ -5,6 +5,7 @@ import AppScreen from "./AppScreen";
 import { emailSchema, passwordSchema } from "../schemas/validationSchemas";
 import { useAuthStore } from "../stores/useAuthStore";
 import { z } from "zod";
+import { useShallow } from "zustand/react/shallow";
 
 export default function Auth() {
   const [email, setEmail] = useState("");
@@ -13,10 +14,13 @@ export default function Auth() {
   const [passwordError, setPasswordError] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
 
-  // Use the auth store state and functions
-  const isLoading = useAuthStore((state) => state.isLoading);
-  const signInWithEmail = useAuthStore.getState().signInWithEmail;
-  const signUpWithEmail = useAuthStore.getState().signUpWithEmail;
+  const { isLoading, signInWithEmail, signUpWithEmail } = useAuthStore(
+    useShallow((state) => ({
+      isLoading: state.isLoading,
+      signInWithEmail: state.signInWithEmail,
+      signUpWithEmail: state.signUpWithEmail,
+    })),
+  );
 
   const togglePasswordVisibility = useCallback(() => {
     setPasswordVisible((prev) => !prev);

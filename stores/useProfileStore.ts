@@ -15,7 +15,7 @@ type ProfileState = {
   isLoading: boolean;
 
   // Get the user profile from Supabase
-  getProfile: () => Promise<void>;
+  setProfile: () => Promise<void>;
 
   // Update the user profile
   updateProfile: (updates: Partial<Profile>) => Promise<void>;
@@ -28,7 +28,7 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
   profile: null,
   isLoading: false,
 
-  getProfile: async () => {
+  setProfile: async () => {
     try {
       const session = useAuthStore.getState().session;
 
@@ -67,7 +67,7 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
       Alert.alert("Profile Updated");
 
       // Refresh the profile after updating
-      await get().getProfile();
+      await get().setProfile();
     } catch (error: any) {
       Alert.alert("Update Failed", error.message);
     } finally {
