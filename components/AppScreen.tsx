@@ -1,5 +1,6 @@
 import React, { ReactNode } from "react";
-import { View, ViewStyle, StyleProp } from "react-native";
+import { ViewStyle, StyleProp } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "react-native-paper";
 
 interface AppScreenProps {
@@ -11,7 +12,7 @@ const AppScreen: React.FC<AppScreenProps> = ({ children, style }) => {
   const theme = useTheme();
 
   return (
-    <View
+    <SafeAreaView
       style={[
         {
           flex: 1,
@@ -21,7 +22,7 @@ const AppScreen: React.FC<AppScreenProps> = ({ children, style }) => {
       ]}
     >
       {children}
-    </View>
+    </SafeAreaView>
   );
 };
 

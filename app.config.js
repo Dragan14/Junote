@@ -30,15 +30,14 @@ const getVariant = () => {
   const variantName = process.env.APP_VARIANT || "production";
   const selectedVariant = VARIANTS[variantName] || VARIANTS.production;
 
-  console.log(`
-    === BUILDING APP VARIANT ===
-    Variant: ${variantName}
-    App Name: ${selectedVariant.name}
-    Bundle ID (iOS): ${selectedVariant.bundleId.ios}
-    Bundle ID (Android): ${selectedVariant.bundleId.android}
-    Environment: ${selectedVariant.environment}
-    ========================
-`);
+  // console.log(`
+  //   === BUILDING APP VARIANT ===
+  //   Variant: ${variantName}
+  //   App Name: ${selectedVariant.name}
+  //   Bundle ID (iOS): ${selectedVariant.bundleId.ios}
+  //   Bundle ID (Android): ${selectedVariant.bundleId.android}
+  //   Environment: ${selectedVariant.environment}
+  //   ========================`);
 
   return selectedVariant;
 };
