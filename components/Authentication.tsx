@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Button, TextInput, HelperText } from "react-native-paper";
+import { Keyboard } from "react-native";
 import AppScreen from "./AppScreen";
 import { emailSchema, passwordSchema } from "../schemas/validationSchemas";
 import { useAuthStore } from "../stores/useAuthStore";
@@ -10,14 +11,19 @@ export default function Auth() {
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
   // Use the auth store state and functions
   const isLoading = useAuthStore((state) => state.isLoading);
-  const signInWithEmail = useAuthStore((state) => state.signInWithEmail);
-  const signUpWithEmail = useAuthStore((state) => state.signUpWithEmail);
+  const signInWithEmail = useAuthStore.getState().signInWithEmail;
+  const signUpWithEmail = useAuthStore.getState().signUpWithEmail;
+
+  const togglePasswordVisibility = useCallback(() => {
+    setPasswordVisible((prev) => !prev);
+  }, []);
 
   // Validate email input
-  const validateEmail = () => {
+  const validateEmail = useCallback(() => {
     try {
       emailSchema.parse(email);
       setEmailError("");
@@ -28,10 +34,10 @@ export default function Auth() {
       }
       return false;
     }
-  };
+  }, [email]);
 
   // Validate password input
-  const validatePassword = () => {
+  const validatePassword = useCallback(() => {
     try {
       passwordSchema.parse(password);
       setPasswordError("");
@@ -42,55 +48,66 @@ export default function Auth() {
       }
       return false;
     }
-  };
+  }, [password]);
 
   // Validate all inputs
-  const validateForm = () => {
+  const validateForm = useCallback(() => {
     const isEmailValid = validateEmail();
     const isPasswordValid = validatePassword();
     return isEmailValid && isPasswordValid;
-  };
+  }, [validateEmail, validatePassword]);
 
-  async function handleSignIn() {
+  const handleSignIn = useCallback(async () => {
+    Keyboard.dismiss();
     if (!validateForm()) {
       return;
     }
     await signInWithEmail(email, password);
-  }
+  }, [email, password, validateForm, signInWithEmail]);
 
-  async function handleSignUp() {
+  const handleSignUp = useCallback(async () => {
+    Keyboard.dismiss();
     if (!validateForm()) {
       return;
     }
     await signUpWithEmail(email, password);
-  }
+  }, [email, password, validateForm, signUpWithEmail]);
 
   return (
     <AppScreen>
       <TextInput
         label="Email"
         left={<TextInput.Icon icon="email" />}
-        onChangeText={(text) => setEmail(text)}
+        onChangeText={setEmail}
         onBlur={validateEmail}
         value={email}
         placeholder="email@address.com"
         autoCapitalize="none"
+        keyboardType="email-address"
         mode="outlined"
         error={!!emailError}
+        autoComplete="email"
       />
       {emailError ? <HelperText type="error">{emailError}</HelperText> : null}
 
       <TextInput
         label="Password"
         left={<TextInput.Icon icon="lock" />}
-        onChangeText={(text) => setPassword(text)}
+        right={
+          <TextInput.Icon
+            icon={passwordVisible ? "eye-off" : "eye"}
+            onPress={togglePasswordVisibility}
+          />
+        }
+        onChangeText={setPassword}
         onBlur={validatePassword}
         value={password}
-        secureTextEntry={true}
+        secureTextEntry={!passwordVisible}
         placeholder="Password"
         autoCapitalize="none"
         mode="outlined"
         error={!!passwordError}
+        autoComplete="password"
       />
       {passwordError ? (
         <HelperText type="error">{passwordError}</HelperText>
@@ -99,7 +116,7 @@ export default function Auth() {
       <Button
         mode="contained"
         disabled={isLoading}
-        onPress={() => handleSignIn()}
+        onPress={handleSignIn}
         loading={isLoading}
         style={{ marginTop: 16 }}
       >
@@ -108,7 +125,7 @@ export default function Auth() {
       <Button
         mode="contained"
         disabled={isLoading}
-        onPress={() => handleSignUp()}
+        onPress={handleSignUp}
         loading={isLoading}
         style={{ marginTop: 8 }}
       >

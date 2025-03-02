@@ -2,40 +2,17 @@ import { create } from "zustand";
 import { supabase } from "../lib/supabase";
 import { User, Session } from "@supabase/supabase-js";
 import { Alert } from "react-native";
+import { useProfileStore } from "./useProfileStore";
 
 type AuthState = {
   user: User | null;
   session: Session | null;
   isLoading: boolean;
-  signInWithEmail: (
-    email: string,
-    password: string,
-  ) => Promise<{
-    user: User | null;
-    session: Session | null;
-    isLoading: boolean;
-    error: Error | null;
-  }>;
-  signUpWithEmail: (
-    email: string,
-    password: string,
-  ) => Promise<{
-    user: User | null;
-    session: Session | null;
-    isLoading: boolean;
-    error: Error | null;
-  }>;
-  signOut: () => Promise<{
-    user: User | null;
-    session: Session | null;
-    isLoading: boolean;
-    error: Error | null;
-  }>;
-  refreshSession: () => Promise<{
-    session: Session | null;
-    isLoading: boolean;
-    error: Error | null;
-  }>;
+  signInWithEmail: (email: string, password: string) => Promise<void>;
+  signUpWithEmail: (email: string, password: string) => Promise<void>;
+  signOut: () => Promise<void>;
+  getSession: () => Promise<void>;
+  getUser: () => Promise<void>;
 };
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -44,129 +21,101 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isLoading: false,
 
   signInWithEmail: async (email: string, password: string) => {
-    set({ isLoading: true });
+    try {
+      set({ isLoading: true });
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error) {
-      Alert.alert(error.message);
+      if (error) throw error;
+
+      set({ user: data.user, session: data.session });
+    } catch (error: any) {
+      Alert.alert("Sign In Error", error.message);
+    } finally {
       set({ isLoading: false });
-      return {
-        user: null,
-        session: null,
-        isLoading: false,
-        error,
-      };
-    } else if (data?.user && data?.session) {
-      set({ user: data.user, session: data.session, isLoading: false });
-      return {
-        user: data.user,
-        session: data.session,
-        isLoading: false,
-        error: null,
-      };
     }
-
-    set({ isLoading: false });
-    return {
-      user: null,
-      session: null,
-      isLoading: false,
-      error: null,
-    };
   },
 
   signUpWithEmail: async (email: string, password: string) => {
-    set({ isLoading: true });
+    try {
+      set({ isLoading: true });
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
 
-    if (error) {
+      if (error) throw error;
+
+      if (!data.session) {
+        Alert.alert(
+          "Verification Required",
+          "Please check your inbox for email verification!",
+        );
+      } else {
+        set({ user: data.user, session: data.session });
+      }
+    } catch (error: any) {
       Alert.alert("Sign Up Error", error.message);
+    } finally {
       set({ isLoading: false });
-      return {
-        user: null,
-        session: null,
-        isLoading: false,
-        error,
-      };
-    } else if (!data.session) {
-      Alert.alert(
-        "Verification Required",
-        "Please check your inbox for email verification!",
-      );
-      set({ isLoading: false });
-      return {
-        user: data.user || null,
-        session: null,
-        isLoading: false,
-        error: null,
-      };
-    } else {
-      set({ user: data.user, session: data.session, isLoading: false });
-      return {
-        user: data.user,
-        session: data.session,
-        isLoading: false,
-        error: null,
-      };
     }
   },
 
   signOut: async () => {
-    set({ isLoading: true });
-    const { error } = await supabase.auth.signOut();
+    try {
+      set({ isLoading: true });
 
-    if (error) {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+
+      set({ user: null, session: null });
+      // Clear the profile store
+      useProfileStore.getState().clearProfile();
+    } catch (error: any) {
       Alert.alert("Sign Out Error", error.message);
+    } finally {
       set({ isLoading: false });
-      return {
-        user: get().user,
-        session: get().session,
-        isLoading: false,
-        error,
-      };
     }
-
-    set({ user: null, session: null, isLoading: false });
-    return {
-      user: null,
-      session: null,
-      isLoading: false,
-      error: null,
-    };
   },
 
-  refreshSession: async () => {
-    set({ isLoading: true });
+  getSession: async () => {
+    try {
+      set({ isLoading: true });
 
-    const { data, error } = await supabase.auth.getSession();
+      const { data, error } = await supabase.auth.getSession();
+      if (error) throw error;
 
-    if (error) {
+      set({ session: data.session });
+
+      // If we have a session, also get the user
+      if (data.session) {
+        await get().getUser();
+      }
+    } catch (error: any) {
       Alert.alert("Session Error", error.message);
-      set({ user: null, session: null, isLoading: false });
-      return {
-        session: null,
-        isLoading: false,
-        error,
-      };
+      set({ user: null, session: null });
+    } finally {
+      set({ isLoading: false });
     }
+  },
 
-    set({
-      session: data?.session || null,
-      isLoading: false,
-    });
+  getUser: async () => {
+    try {
+      set({ isLoading: true });
 
-    return {
-      session: data?.session || null,
-      isLoading: false,
-      error: null,
-    };
+      const { data, error } = await supabase.auth.getUser();
+      if (error) throw error;
+
+      set({ user: data.user });
+    } catch (error: any) {
+      Alert.alert("User Error", error.message);
+      set({ user: null });
+    } finally {
+      set({ isLoading: false });
+    }
   },
 }));

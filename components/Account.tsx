@@ -1,120 +1,121 @@
-import { useState, useEffect } from "react";
-import { supabase } from "../lib/supabase";
-import { Alert } from "react-native";
-import { Button, TextInput } from "react-native-paper";
+import { useEffect, useState, useCallback } from "react";
+import { Button, TextInput, HelperText } from "react-native-paper";
 import AppScreen from "./AppScreen";
 import { useAuthStore } from "../stores/useAuthStore";
+import { useProfileStore } from "../stores/useProfileStore";
+import { usernameSchema } from "../schemas/validationSchemas";
+import { z } from "zod";
 
 export default function Account() {
-  const [loading, setLoading] = useState(true);
-  const [username, setUsername] = useState("");
-  const [website, setWebsite] = useState("");
-  const [avatarUrl, setAvatarUrl] = useState("");
+  const {
+    user,
+    session,
+    isLoading: isAuthLoading,
+    signOut,
+    getUser,
+  } = useAuthStore((state) => ({
+    user: state.user,
+    session: state.session,
+    isLoading: state.isLoading,
+    signOut: state.signOut,
+    getUser: state.getUser,
+  }));
 
-  // Use the auth store instead of passing session as prop
-  const user = useAuthStore((state) => state.user);
-  const session = useAuthStore((state) => state.session);
-  const signOut = useAuthStore((state) => state.signOut);
+  const {
+    profile,
+    isLoading: isProfileLoading,
+    getProfile,
+    updateProfile,
+    clearProfile,
+  } = useProfileStore((state) => ({
+    profile: state.profile,
+    isLoading: state.isLoading,
+    getProfile: state.getProfile,
+    updateProfile: state.updateProfile,
+    clearProfile: state.clearProfile,
+  }));
+
+  // Form state
+  const [username, setUsername] = useState("");
+  const [usernameError, setUsernameError] = useState("");
 
   useEffect(() => {
-    if (session) getProfile();
-  }, [session]);
-
-  async function getProfile() {
-    try {
-      setLoading(true);
-      if (!user) throw new Error("No user on the session!");
-
-      const { data, error, status } = await supabase
-        .from("profiles")
-        .select(`username, website, avatar_url`)
-        .eq("id", user.id)
-        .single();
-      if (error && status !== 406) {
-        throw error;
-      }
-
-      if (data) {
-        setUsername(data.username);
-        setWebsite(data.website);
-        setAvatarUrl(data.avatar_url);
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        Alert.alert(error.message);
-      }
-    } finally {
-      setLoading(false);
+    if (session) {
+      getProfile();
+      getUser();
     }
-  }
+  }, [session, getProfile, getUser]);
 
-  async function updateProfile({
-    username,
-    website,
-    avatar_url,
-  }: {
-    username: string;
-    website: string;
-    avatar_url: string;
-  }) {
-    try {
-      setLoading(true);
-      if (!user) throw new Error("No user on the session!");
-
-      const updates = {
-        id: user.id,
-        username,
-        website,
-        avatar_url,
-        updated_at: new Date(),
-      };
-
-      const { error } = await supabase.from("profiles").upsert(updates);
-
-      if (error) {
-        throw error;
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        Alert.alert(error.message);
-      }
-    } finally {
-      setLoading(false);
+  // Initialise username state with profile username when it loads
+  useEffect(() => {
+    if (profile?.username) {
+      setUsername(profile.username);
     }
-  }
+  }, [profile]);
+
+  // Validate username
+  const validateUsername = useCallback(() => {
+    try {
+      usernameSchema.parse(username);
+      setUsernameError("");
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setUsernameError(error.errors[0].message);
+      }
+      return false;
+    }
+  }, [username]);
+
+  // Update profile handler
+  const handleUpdateProfile = useCallback(async () => {
+    if (!validateUsername()) {
+      return;
+    }
+    await updateProfile({
+      username: username.trim(),
+    });
+  }, [username, validateUsername, updateProfile]);
+
+  const handleSignOut = useCallback(() => {
+    clearProfile();
+    signOut();
+  }, [signOut, clearProfile]);
 
   return (
     <AppScreen>
       <TextInput
         label="Email"
         value={user?.email || ""}
-        disabled
         mode="outlined"
+        disabled={true}
+        left={<TextInput.Icon icon="email" />}
       />
       <TextInput
         label="Username"
-        value={username || ""}
-        onChangeText={(text) => setUsername(text)}
+        value={username}
         mode="outlined"
+        onBlur={validateUsername}
+        onChangeText={setUsername}
+        disabled={isProfileLoading}
+        left={<TextInput.Icon icon="account" />}
+        error={!!usernameError}
       />
-      <TextInput
-        label="Website"
-        value={website || ""}
-        onChangeText={(text) => setWebsite(text)}
-        mode="outlined"
-      />
+      {usernameError ? (
+        <HelperText type="error" visible={!!usernameError}>
+          {usernameError}
+        </HelperText>
+      ) : null}
 
       <Button
         mode="contained"
-        onPress={() =>
-          updateProfile({ username, website, avatar_url: avatarUrl })
-        }
-        disabled={loading}
+        onPress={handleUpdateProfile}
+        disabled={isProfileLoading || username === profile?.username}
       >
-        {loading ? "Loading..." : "Update"}
+        {isProfileLoading ? "Updating..." : "Update Profile"}
       </Button>
 
-      <Button mode="outlined" onPress={() => signOut()}>
+      <Button mode="outlined" onPress={handleSignOut} disabled={isAuthLoading}>
         Sign Out
       </Button>
     </AppScreen>

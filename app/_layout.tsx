@@ -22,14 +22,14 @@ export default function RootLayout() {
     colorScheme === "dark" ? junoteDarkTheme : junoteLightTheme;
 
   const session = useAuthStore((state) => state.session);
-  const refreshSession = useAuthStore((state) => state.refreshSession);
+  const getSession = useAuthStore.getState().getSession;
 
   useEffect(() => {
     // Listen for session changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(() => {
-      refreshSession();
+      getSession();
     });
 
     // Handle app state changes for auto-refresh
@@ -49,7 +49,7 @@ export default function RootLayout() {
       subscription.unsubscribe();
       appStateSubscription.remove();
     };
-  }, [refreshSession]);
+  }, [getSession]);
 
   return (
     <SafeAreaProvider>

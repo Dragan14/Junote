@@ -14,3 +14,12 @@ export const passwordSchema = z
     /[^A-Za-z0-9]/,
     "Password must contain at least one special character",
   );
+
+export const usernameSchema = z
+  .string()
+  .min(3, "Username must be at least 3 characters")
+  .max(30, "Username must be less than 30 characters")
+  .regex(
+    /^[a-zA-Z0-9_-]+$/,
+    "Username can only contain letters, numbers, underscores, and hyphens",
+  );
