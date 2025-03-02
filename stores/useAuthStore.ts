@@ -2,7 +2,6 @@ import { create } from "zustand";
 import { supabase } from "../lib/supabase";
 import { User, Session } from "@supabase/supabase-js";
 import { Alert } from "react-native";
-import { useProfileStore } from "./useProfileStore";
 
 type AuthState = {
   user: User | null;
@@ -73,8 +72,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (error) throw error;
 
       set({ user: null, session: null });
-      // Clear the profile store
-      useProfileStore.getState().clearProfile();
     } catch (error: any) {
       Alert.alert("Sign Out Error", error.message);
     } finally {
@@ -90,11 +87,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (error) throw error;
 
       set({ session: data.session });
-
-      // If we have a session, also get the user
-      if (data.session) {
-        await get().getUser();
-      }
     } catch (error: any) {
       Alert.alert("Session Error", error.message);
       set({ user: null, session: null });

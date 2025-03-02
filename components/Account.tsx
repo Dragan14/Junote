@@ -11,29 +11,21 @@ export default function Account() {
     user,
     session,
     isLoading: isAuthLoading,
-    signOut,
-    getUser,
   } = useAuthStore((state) => ({
     user: state.user,
     session: state.session,
     isLoading: state.isLoading,
-    signOut: state.signOut,
-    getUser: state.getUser,
   }));
+  const signOut = useAuthStore.getState().signOut;
+  const getUser = useAuthStore.getState().getUser;
 
-  const {
-    profile,
-    isLoading: isProfileLoading,
-    getProfile,
-    updateProfile,
-    clearProfile,
-  } = useProfileStore((state) => ({
+  const { profile, isLoading: isProfileLoading } = useProfileStore((state) => ({
     profile: state.profile,
     isLoading: state.isLoading,
-    getProfile: state.getProfile,
-    updateProfile: state.updateProfile,
-    clearProfile: state.clearProfile,
   }));
+  const getProfile = useProfileStore.getState().getProfile;
+  const updateProfile = useProfileStore.getState().updateProfile;
+  const clearProfile = useProfileStore.getState().clearProfile;
 
   // Form state
   const [username, setUsername] = useState("");
@@ -46,7 +38,6 @@ export default function Account() {
     }
   }, [session, getProfile, getUser]);
 
-  // Initialise username state with profile username when it loads
   useEffect(() => {
     if (profile?.username) {
       setUsername(profile.username);
